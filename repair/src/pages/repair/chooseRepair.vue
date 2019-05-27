@@ -72,7 +72,7 @@
 				}
 				_this.typeName = _this.typeConfig[type][0];
 				_this.typeImg = _this.typeConfig[type][1];
-				let url = 'repair/project/'+type;
+				let url = 'repair/projects/'+type;
 				_this.receiveData.getData(_this,url,'res',function(){
 					console.log(_this.res);
 					_this.project = _this.res.result;
