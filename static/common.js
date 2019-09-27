@@ -3,13 +3,13 @@ var MasterConfig = function() {
     
     var t = {
 
-        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.com/youyi/wechat/hexie/wechat/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/youyi/wechat/hexie/wechat/':
-        'https://www.e-shequ.com/youyi/wechat/hexie/wechat/',
+        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.cn/youyi/wechat/hexie/wechat/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.cn/youyi/wechat/hexie/wechat/':
+        'https://www.e-shequ.cn/youyi/wechat/hexie/wechat/',
         
-        basePageUrl:/127|test/.test(location.origin)?'https://test.e-shequ.com/youyi/weixin/':
-        /uat/.test(location.origin)?'https://uat.e-shequ.com/youyi/weixin/':
-        'https://www.e-shequ.com/youyi/weixin/',
+        basePageUrl:/127|test/.test(location.origin)?'https://test.e-shequ.cn/youyi/weixin/':
+        /uat/.test(location.origin)?'https://uat.e-shequ.cn/youyi/weixin/':
+        'https://www.e-shequ.cn/youyi/weixin/',
         
         appId: /127|test/.test(location.origin)?'wx95f46f41ca5e570e':
         /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
@@ -19,7 +19,7 @@ var MasterConfig = function() {
         /uat/.test(location.origin)?'wx9ffe0a2b5a64a285':
         'wx895d483798f8d322',
 
-        oauthUrl: "http://open.weixin.qq.com/connect/oauth2/authorize?",
+        oauthUrl: "http://open.weixin.qq.cn/connect/oauth2/authorize?",
         oauthUrlPostFix:"&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect",
 		oauthUrlPostSilent:"&response_type=code&scope=snsapi_base&state=123#wechat_redirect",
         
@@ -47,7 +47,7 @@ var Config = function() {
             no_goods: "更多新品正在陆续推出..."
         },
         user_info: {
-            avatar: "https://www.e-shequ.com/youyi/weixin/static/images/logo.jpg",
+            avatar: "https://www.e-shequ.cn/youyi/weixin/static/images/logo.jpg",
             nickname: "游客",
             levelname: "普通会员"
         },
@@ -57,7 +57,7 @@ var Config = function() {
             2 : "大楼VIP"
         },
         coupon:{
-            seedImg:"https://www.e-shequ.com/youyi/weixin/static/img/banner/banner_market_shuiguo.jpg"
+            seedImg:"https://www.e-shequ.cn/youyi/weixin/static/img/banner/banner_market_shuiguo.jpg"
         }
     },
     e = {};

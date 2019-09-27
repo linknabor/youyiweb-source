@@ -9,7 +9,9 @@ import notices from '@/pages/notices'  //我的消息
 import mypublish from '@/pages/mypublish'//我的发布
 import threaddetail from '@/pages/threaddetail'//发布详情
 import addresses from '@/pages/addresses'  //地址信息
-
+import OperatorOrders from '@/pages/myRepair/operatorOrders'//我的维修单
+import OperatorOrdersDetail from '@/pages/myRepair/operatorOrdersDetail'//我的维修我要抢单
+import OperatorRepairSuccess from '@/pages/myRepair/operatorRepairSuccess'//我要抢单 公共页面
 
 Vue.use(Router)
 
@@ -76,8 +78,26 @@ let router= new Router({
       meta:{
         title:'地址信息'
       }
+    },
+    {
+      path:'/operatorOrders',
+      name:'operatorOrders',
+      component:OperatorOrders,
+      meta: {
+        title:'我的维修单'
+      }
+    },
+    {
+      path:'/operatorOrdersDetail',
+      name:'operatorOrdersDetail',
+      component:OperatorOrdersDetail,
+    
+    },
+    {
+      path:'/operatorRepairSuccess',
+      name:'operatorRepairSuccess',
+      component:OperatorRepairSuccess,
     }
- 
   ]
 })
 

@@ -3,7 +3,7 @@ var MasterConfig = function() {
     
     var t = {
 
-        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.com/youyi/wechat/hexie/wechat/':
+        baseUrl: /127|test/.test(location.origin)?'https://test.e-shequ.com//wechat/hexie/wechat/':
         /uat/.test(location.origin)?'https://uat.e-shequ.com/youyi/wechat/hexie/wechat/':
         'https://www.e-shequ.com/youyi/wechat/hexie/wechat/',
         
@@ -261,7 +261,7 @@ window.common = {
             $.ajax(a)
         }
     },
-    
+
     /**变更才需要重设置*/
     updateUserStatus:function (user) {
         var duration = new Date().getTime()/1000 + 3600*24*30;

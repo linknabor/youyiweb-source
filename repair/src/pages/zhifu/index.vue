@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div id="zzmb"  class="zzmb" ></div>
     <div v-show="page== 'main'" class="address">
       <div class="addr_area" @click="choseAddress">
         <div class="topLine">
@@ -56,7 +57,7 @@
         </div>
         <div style="margin-top:15px;width:100%;height:40px;font-size: 14px;color: #666">
           <div style="float: left;padding-left: 5px;">上传照片</div>
-          <div style="float: right;padding-right: 15px;color: #999">{{pic_length.length}}/6</div>
+          <div style="float: right;padding-right: 15px;color: #999">{{pic_length}}/6</div>
         </div>
         <div>
             <div id="pic" class="pic_frame">
@@ -118,37 +119,25 @@
               v-model="submitAddress.tel"
             >
           </div>
-          <!-- @click="showRegion" -->
-          <div class="input-wrap lite-divider menu-link">
+          <div class="input-wrap lite-divider menu-link" @click="showRegion">
             <span class="fl fs15" style="color: #3b3937">所在地区</span>
-
-            <div class="reion-info">
-              <span class="reionspan" @click="toChoosePro">{{submitAddress.province}}</span>
-              <span
-                class="reionspan"
-                @click="toChooseCity(submitAddress.provinceId)"
-              >{{submitAddress.city}}</span>
-              <span
-                class="reionspan"
-                @click="toChooseCounty(submitAddress.cityId)"
-              >{{submitAddress.county}}</span>
-            </div>
-          </div>
-          
-          <div id="widget" v-show="widgets">
-            <div class="w-modal-mask" @click="adcheck">
-              <div class="w-modal">
-                <div
-                  class="w-option w-lite-divider"
-                  :class="{WCheckedItem:region.value==checkeditem}"
-                  v-for="(region,index) in Addprovince"
-                  :key="index"
-                  @click="Addcheck(index)"
-                >{{region.name}}</div>
-              </div>
-            </div>
+            <span class="fr fs14"  style="color: #aeaeae" v-if="!distinct" >请选择所在地区</span>
+            <span class="fr fs14" v-if="distinct">{{distinct}}</span>
           </div>
           <!---------------- -->
+          
+        <!-- 选择省  市 县-->
+        <div v-if="selectRegion==true">
+            <div class="tc">
+                <div class="region  fl" :class="{check:currentRegionType==1}" @click="backRegion(1)">选择省</div>
+                <div class="region fl" :class="{check:currentRegionType==2}" @click="backRegion(2)">市</div>
+                <div class="region fl" :class="{check:currentRegionType==3}">区县</div>
+            </div>
+            <div   style="width:100%;clear:both;background-color: #e0dede; overflow:hidden">
+                <div v-for="(region,i) in regions" :class="{city:Math.floor((i/4)%2)==0,city2:Math.floor((i/4)%2)==1}" class="fs14 fl"  @click="updateRegion(region)">{{region.name}}</div>
+            </div>
+            <div> &nbsp;</div>
+        </div>
           <div style="clear: both;" v-if="selectRegion==false">
             <div class="input-wrap lite-divider menu-link" @click="showLocation">
               <span class="fl fs15">小区或大厦</span>
@@ -184,7 +173,9 @@
       <div style="background-color: #fffff8" v-show="lian=='xiaoqu'">
         <div class="location-wrap">
           <div class="location-input-wrap">
-            <input placeholder="请输入小区名称" class="location-input" v-model="suggestLocation">
+           <div class="location-i">
+                <input placeholder="请输入小区名称" class="location-input" v-model="suggestLocation" />    
+           </div>
             <i class="location-btn-cancel" @click="cancelLocation" v-if="suggestion"></i>
           </div>
           <span class="location-btn-ensure" @click="submitLocation">确定</span>
@@ -203,7 +194,6 @@
       </div>
     </div>
 
-    
   </div>
 </template>
 
@@ -221,7 +211,8 @@ export default {
       projectId:this.$route.query.projectId,
       project:'', //报修项目详情
       address: {}, //报修地址
-      serviceItemId: 6,      
+      serviceItemId: 6,     
+       localIdsid:'',
       hours: 2,
       amount: 0,
       requireDate: "",
@@ -229,19 +220,19 @@ export default {
       memo:'',
       //    选择地址
       addresses: [],
-      pic_length:[],
+      pic_length:0,
       uploadPicId:"",
       checkedAddress: {},
       lian: "chu",
       zhen: "from",
-      Addprovince: [],
-      Addtype: "",
-      widgets: false,
-      checkeditem: "",
+      regions:[],//获取区域
+      provinces:[],
+      citys:[],
+      countys:[],
       submitAddress: {
-        province: "选择省",
-        city: "选择市",
-        county: "选择区县",
+        province: "",
+        city: "",
+        county: "",
         receiveName: "",
         tel: "",
         provinceId: 0,
@@ -252,6 +243,9 @@ export default {
         amapDetailAddr: "",
         homeAddress: ""
       },
+      distinct: "",
+      selectRegion: false,
+      currentRegionType: 1,
       isChooseTeam:false,
       assignType:2,
       assignTitle:'智能推荐',
@@ -277,9 +271,6 @@ export default {
           checked:false
         }
       ],
-      distinct: "",
-      selectRegion: false,
-      currentRegionType: 1,
       //小区
       suggestLocation: "",
       suggestion: {},
@@ -412,7 +403,7 @@ export default {
             sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
             success: function (res) {
                 var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-                console.log(localIds);
+                vm.localIdsid=res.localIds;
                 // alert('已选择'+localIds.length+'张图片');
                var html = "";
                var pic_length = $("[name='pics']").length;
@@ -420,12 +411,41 @@ export default {
                    alert("所选图片超过6张。")
                    return false;
                }
-                for(var i=0;i<localIds.length;i++){
-                    html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localIds[i]+"\" style=\"height:100px;width:90px;\"/></div>"
-                    $("#pic").append(html);
+               vm.pic_length+=localIds.length;
+              var i=0;
+                if(window.__wxjs_is_wkwebview) {//ios 环境
+                   function addimage(i) {
+                            //  setTimeout(function(){
+                                wx.getLocalImgData({
+                                    localId: localIds[i],
+                                    success: function (res) {                                          
+                                        var localData = res.localData;
+                                        // var addds=res.localData;
+                                        localData = localData.replace('jgp', 'jpeg');
+                                            html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localData+"\" id=\""+vm.localIdsid[i]+"\"  style=\"height:100px;width:90px;\"/></div>"
+                                            $("#pic").append(html);
+                                        i++;  
+                                        if(i<localIds.length) {
+                                            // alert(i)
+                                            addimage(i)
+                                        }   
+                                    },
+                                    fail:function(res){
+                                        alert(res);
+                                    }
+                                }) 
+                            //  },100)  
+                         }  
+                         addimage(i); 
+                }else {
+                    for(var i=0;i<localIds.length;i++){
+                      html = "<div name='pics' class=\"fl\" style=\"margin-right:5px;\"><img src=\""+localIds[i]+"\"  id=\""+localIds[i]+"\" style=\"height:100px;width:90px;\"/></div>"
+                      $("#pic").append(html);
+                    }
                 }
+
                 if(pic_length+localIds.length >= 6){
-                    $("#add").hide();
+                        $("#add").hide();
                 }
             },
             error:function(err){
@@ -439,7 +459,7 @@ export default {
         var pics = $("[name='pics']");
         function upload(){
             var img = pics.eq(i).find("img");
-            var id = img.attr("src");
+            var id = img.attr("id");
             setTimeout(function(){
                 wx.uploadImage({
                     localId: id, // 需要上传的图片的本地ID，由chooseImage接口获得
@@ -451,7 +471,7 @@ export default {
                         if(i<pics.length){
                             upload();
                         }else if(i==pics.length){
-                            return;
+                            vm.saveThread();
                         }
                         
                     }
@@ -483,56 +503,84 @@ export default {
     },
     toAddAddress() {
       vm.lian = "xing";
+      vm.submitAddress={//保存地址
+          receiveName:"",//联系人
+          tel:"",//手机
+          provinceId:0,province:"",//省
+          cityId:0,city:"",//市
+          countyId:0,county:"",//县
+          xiaoquName:"",//小区
+          amapId:0,
+          amapDetailAddr:"",//小区地址 例如：三林路128弄"
+          homeAddress:""//例如：1号楼402室
+      }
+      vm.distinct='';
     },
     //!--------------!
-    queryRegion(type, pic) {
-      var url = "regionsv2/" + type + "/" + pic;
-      vm.Addtype = type;
+    getRegions(type, pic) {
+      vm.currentRegionType=type;
+      var url = "regions/" + type + "/" + pic;
       vm.receiveData.getData(vm, url, "data", function() {
-        if (vm.data.success) {
-          vm.Addprovince = vm.data.result;
-          vm.widgets = true;
-        } else {
-          alert(
-            vm.data.message == null
-              ? "获取数据失败,请稍后再试"
-              : vm.data.message
-          );
+        if(vm.data.success) {
+            vm.regions=vm.data.result;
+        }else {
+            alert( vm.data.message == null?"获取数据失败,请稍后再试":vm.data.message);
         }
       });
     },
-    Addcheck(index) {
-      vm.checkeditem = vm.Addprovince[index].value;
-      if (vm.Addtype == "1") {
-        vm.submitAddress.province = vm.Addprovince[index].name;
-        vm.submitAddress.provinceId = vm.Addprovince[index].value;
-        vm.toChooseCity(vm.Addprovince[index].value);
-        return;
-      }
-      if (vm.Addtype == "2") {
-        vm.submitAddress.city = vm.Addprovince[index].name;
-        vm.submitAddress.cityId = vm.Addprovince[index].value;
-        vm.toChooseCounty(vm.Addprovince[index].value);
-        return;
-      }
-      if (vm.Addtype == "3") {
-        vm.submitAddress.county = vm.Addprovince[index].name;
-        vm.submitAddress.countyId = vm.Addprovince[index].value;
-      }
-      vm.widgets = false;
-    },
-    adcheck() {
-      vm.widgets = false;
-    },
-    toChoosePro() {
-      vm.queryRegion(1, 0);
-    },
-    toChooseCity(value) {
-      vm.queryRegion(2, value);
-    },
-    toChooseCounty(value) {
-      vm.queryRegion(3, value);
-    },
+    //点击所在地区
+      showRegion() {
+          vm.selectRegion=!vm.selectRegion;
+          if(vm.selectRegion) {
+              vm.changeRegionView()
+          }
+      },
+      backRegion(a){
+            vm.getRegions(a,1)
+      },
+      backRegion(b){
+          vm.getRegions(b,vm.submitAddress.provinceId)
+      },
+      updateRegion(region){
+          vm.changeRegionView(region.regionType,region.id,region.name) 
+      },
+      changeRegionView(regionType,regionId,regionNam) {
+            if(!regionType) {
+                if(vm.provinces.length==0) {
+                     vm.getRegions(1,1);
+                }else {
+                vm.regions=vm.provinces
+                  }
+            }else {
+                if(regionType ==1) {
+                    if(vm.submitAddress.provinceId != regionId ||vm.citys.length==0) {
+                        vm.getRegions(2,regionId);
+                    } else {
+                        vm.regions = vm.citys;
+                    }
+                    vm.submitAddress.province = regionNam;//省
+                    vm.submitAddress.provinceId = regionId;//ID
+                    // console.log(vm.submitAddress.province, vm.submitAddress.provinceId )
+                    vm.currentRegionType=2;
+                }else if(regionType == 2) {
+                    if(vm.submitAddress.cityId != regionId ||countys.length==0) {
+                        vm.getRegions(3,regionId);
+                    } else {
+                        vm.regions = vm.countys;
+                    }
+                    vm.submitAddress.city = regionNam;//市
+                    vm.submitAddress.cityId = regionId;
+                    // console.log(vm.submitAddress.city,vm.submitAddress.cityId)
+                    vm.currentRegionType=3;
+                }else if(regionType == 3) {
+                    vm.submitAddress.county = regionNam;
+                    vm.submitAddress.countyId = regionId;
+                    vm.distinct=vm.submitAddress.province+vm.submitAddress.city+vm.submitAddress.county;
+                    vm.selectRegion = false;
+                }
+            }
+        },
+
     chooseTeam(){
       vm.isChooseTeam = true;
     },
@@ -552,9 +600,9 @@ export default {
     //
     showLocation() {
       if (
-        vm.submitAddress.city == "选择市" ||
-        vm.submitAddress.county == "选择区县" ||
-        vm.submitAddress.province == "选择省"
+        vm.submitAddress.city == "" ||
+        vm.submitAddress.county == "" ||
+        vm.submitAddress.province == ""
       ) {
         alert("请先选择你所在的区域！");
         return;
@@ -599,9 +647,9 @@ export default {
     //保存
     addAddressa() {
       if (
-        vm.submitAddress.province == "选择省" ||
-        vm.submitAddress.city == "选择市" ||
-        vm.submitAddress.county == "选择区县"
+        vm.submitAddress.province == "" ||
+        vm.submitAddress.city == "" ||
+        vm.submitAddress.county == ""
       ) {
         alert("请填写完整相关信息！");
         return;
@@ -615,7 +663,7 @@ export default {
         alert("请填写完整相关信息！");
         return;
       }
-      if (!/^1[3-9][0-9]\d{4,8}$/.test(vm.submitAddress.tel)) {
+      if (!/^[1]([3-9])[0-9]{9}$/.test(vm.submitAddress.tel)) {
         alert("请填写正确的手机号！");
         return;
       }
@@ -638,13 +686,19 @@ export default {
       addr.amapDetailAddr = vm.submitAddress.amapDetailAddr;
       addr.amapId = vm.submitAddress.amapId;
       // console.log(addr)
+      $("#zzmb").show();
       vm.receiveData.postData(vm, "/addAddress", addr, "n", function() {
-        vm.addresses.push(vm.n.result);
-        vm.checkedAddress = vm.n.result;
+          if(vm.n.success) {
+              vm.addresses.push(vm.n.result);
+              vm.checkedAddress = vm.n.result;
 
-        vm.page = "list";
-        // vm.page="main"
-        vm.lian = "chu";
+              vm.page = "list";
+              // vm.page="main"
+              vm.lian = "chu";
+          }else {
+              alert(vm.n.message==null?"地址保存失败，请重试！":vm.n.message);
+          }
+          $("#zzmb").hide(); 
       });
     },
     //返回列表
@@ -652,15 +706,8 @@ export default {
       vm.lian = "chu";
     },
     submit() {
-      // console.log(vm.memo);
-      let data = {};
-      data.addressId = vm.address.id;
-      data.projectId = vm.projectId;
-      data.assignType = vm.assignType;
-      data.memo = vm.memo;
-      data.requireDateStr = vm.requireDate;
+       if(vm.address.id==undefined){alert("请选择服务的地址");return;}
       if(vm.requireDate==''){alert("请选择预约维修时间");return;}
-      if(vm.address=={}){alert("请选择服务的地址");return;}
       if(!vm.projectId||vm.projectId==0){alert("页面异常，请重新选择项目后重试！");return;}
       var pic_length = $("[name='pics']").length;
       $("#zzmb").show();
@@ -671,24 +718,35 @@ export default {
       }
       if(pic_length>0){
         vm.uploadToWechat();
+      }else {
+        vm.saveThread();
       }
+
+    },
+    saveThread() {
+      let data = {};
+      data.memo = vm.memo;
+      data.addressId = vm.address.id;
+      data.projectId = vm.projectId;
+      data.assignType = vm.assignType;
+      data.requireDateStr = vm.requireDate;
+      data.imgUrls = vm.uploadPicId;
       let url = 'repair';
       vm.receiveData.postData(vm,url,data,'res',function(){
-        console.log(vm.res.result);
-        vm.$router.push({
-          name:'submitSuccess',
-          query:{
-            oId:vm.res.result
-          }
-        })
+        if(vm.res.success) {
+           vm.$router.push({
+              name:'submitSuccess',
+              query:{
+                oId:vm.res.result
+              }
+           })
+        }else {
+          alert(vm.res.message);
+            $("#zzmb").hide();
+        }
+       
       })
-    },
-    requestPay() {
-      $("#zzmb").css("display", "block");
-      
-      $("#zzmb").css("display", "none");
-    },
-    
+    }
   },
   computed: {}
 };
@@ -696,9 +754,9 @@ export default {
 
 <style  scoped>
 .zzmb {
-  z-index: 100000;position: absolute;top: 0;left: 0;
+  z-index: 100000;position: fixed;top: 0;left: 0;
   -moz-opacity: 0.65;opacity: 0.65;filter: alpha(opacity=65);
-  background: #000;width: 100%;height: 100%;display: block;}
+  background: #000;width: 100%;height: 100%;display: none;}
 .topLine {margin: 15px auto;background: #fff8ee;line-height: 16px;
   border-top: 1px solid #e5e2dd;border-bottom: 1px solid #e5e2dd;
   padding: 10px 15px;height: 16px;font-size: 16px;}
@@ -739,10 +797,11 @@ export default {
   font-size: 14px;color: #666666;}
 .date_pppp {position: fixed;width: 0px;height: 0px;color: #fccc;
   z-index: -1;top: 200px;left: 50px;border: 0px;}
-.modal-mask {position: absolute;top: 0;left: 0;right: 0;
-  bottom: 0;background: rgba(0,0,0,0.5);}
-.modal{background: #fff;border-radius: 5px;margin: 200px auto;
-  padding: 10px 15px;width: 50%;}
+.modal-mask {position: fixed;top: 0;left: 0;right: 0;
+  bottom: 0;background: rgba(0,0,0,0.5);
+  }
+.modal{background: #fff;border-radius: 5px;
+  padding: 10px 15px;width: 50%;  position:absolute;top:50%;left: 50%; transform: translate(-50%,-50%);}
 .modal-select{line-height: 40px;}
 /*.checked-item {background: url("images/icon_selected.png") no-repeat;
   background-position: right center;background-size: 16px;}*/
@@ -806,7 +865,7 @@ export default {
 .hidden-input {height: 20px;margin-top: 12px;border: none;
   outline: none;background-color: transparent;text-align: right;}
 .menu-link {display: block;background-size: 7px 12px;
-  background: url(../../assets/images/icon_arrow.png) no-repeat;
+  background: url(../../assets/images/btn_arrow_05_05.png) no-repeat;
   background-position: right center;padding-right: 15px;}
 .tc {
   text-align: center;
@@ -843,18 +902,22 @@ export default {
   height: 36px;
   width: 100%;
   outline: none;
-  border: 1px solid #d4cfc8;
-  border-radius: 4px;
+  border:none;
   vertical-align: middle;
   font-size: 15px;
 }
+.location-i {
+    padding-right: 30px;
+    border-radius: 4px;
+    border: 1px solid #d4cfc8;
+}
 .location-btn-cancel {
   position: absolute;
-  top: 5px;
-  right: 4px;
+  top: 6px;
+  right: 10px;
   display: inline-block;
   height: 36px;
-  width: 36px;
+  width: 30px;
   background: url(../../assets/images/icon_cancel.png) no-repeat;
   background-size: 15px;
   background-position: center;
@@ -924,6 +987,7 @@ export default {
   outline: none;
   border: none;
   text-decoration: none;
+  margin-top:20px;
 }
 .btn-plain {
   display: inline-block;
@@ -942,49 +1006,8 @@ export default {
 }
 
 /* 选择地区2 */
-.reion-info {
-  width: 70%;
-  float: right;
-  overflow: hidden;
-  font-size: 15px;
-}
-.reionspan {
-  width: 31%;
-  display: inline-block;
-  text-align: right;
-}
-.w-modal-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 10;
-}
-.w-modal {
-  position: relative;
-  background: #fff;
-  border-radius: 5px;
-  margin: 20% auto;
-  padding: 10px 15px;
-  overflow: scroll;
-  width: 60%;
-  max-height: 80%;
-}
-.w-lite-divider {
-  border-bottom: 1px solid #d4cfc8;
-}
-.w-option {
-  background-image: url(../../assets/images/icon_select.png);
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: 16px;
-  padding: 15px 0 15px 25px;
-}
-.WCheckedItem {
-  background-image: url(../../assets/images/icon_selectted.png);
-}
+
+
 .clear{clear:both;}
 .fl{float: left;}
 .pic_frame {width: 94%;margin: 0px 0% 0px 6%;}

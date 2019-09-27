@@ -13,17 +13,15 @@ import Qs from 'qs';
 import axios from 'axios';
 //axios.defaults.withCredentials=true; //存储cookie？
 import VueAxios from 'vue-axios';
-
+import cookie from 'js-cookie'
 import './assets/css/base.css'
 // import './assets/css/normalize.css'
 // import '../static/js/rem.js'
 import './assets/js/rem.js'
 
-import cookie from 'js-cookie'
 // import common from './assets/js/common.js'
-Vue.prototype.common = common;
-
 // import config from './assets/js/config.js'
+Vue.prototype.common = common;
 Vue.prototype.config  = config;
 
 import receiveData from './assets/js/receiveData.js'

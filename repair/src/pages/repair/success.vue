@@ -143,7 +143,6 @@
 					url:'repair/query/'+vm.$route.query.oId,
 					methods:'get'
 				}).then(res=>{
-					console.log(res);
 					let data = JSON.parse(res.data);
 					// console.log(order);
 					vm.order = data.result;

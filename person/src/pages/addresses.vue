@@ -1,5 +1,6 @@
 <template>
    <div class="addr">
+        <div id="zzmb"  class="zzmb" ></div>
         <div v-show="currentPage=='list'" class="menu-linksa fs14 address-wrap lite-divider" @click="check(item)" v-for="(item,i) in addresses" style="display: block;">
         
             <span style="margin-left:10px">{{item.receiveName}}</span>
@@ -20,7 +21,7 @@
         </div>
 
         <!-- 新增地址 -->
-         <div   v-show="currentPage=='xinzen'">
+         <div   v-show="currentPage=='xinzen'" style="padding:0 15px;">
                         <div class="input-wrap lite-divider">
                             <span class="fl fs15">联系人</span>
                             <input placeholder="请输入联系人姓名" class="fr fs14 hidden-input" v-model="submitAddress.receiveName"/>
@@ -72,7 +73,9 @@
                 <div style="background-color: #fffff8" v-if="currentPage=='location'">
                         <div class="location-wrap">
                             <div class="location-input-wrap">
-                                <input placeholder="请输入小区名称" class="location-input" v-model="suggestLocation" />
+                                <div class="location-i">
+                                     <input placeholder="请输入小区名称" class="location-input" v-model="suggestLocation" />    
+                                </div>
                                 <i class="location-btn-cancel" @click="cancelLocation" v-if="suggestion"></i>
                             </div>
                             <span class="location-btn-ensure" @click="submitLocation">确定</span>
@@ -239,8 +242,20 @@ export default {
         },
         //点击新增地址
         toAddAddress() {
-            vm.currentPage='xinzen'
-        },
+            vm.currentPage='xinzen';
+            vm.submitAddress={//保存地址
+                receiveName:"",//联系人
+                tel:"",//手机
+                provinceId:0,province:"",//省
+                cityId:0,city:"",//市
+                countyId:0,county:"",//县
+                xiaoquName:"",//小区
+                amapId:0,
+                amapDetailAddr:"",//小区地址 例如：三林路128弄"
+                homeAddress:""//例如：1号楼402室
+            }
+            vm.distinct='';
+            },
         //获取区域
         getRegions(type,id) {
             vm.currentRegionType=type;
@@ -357,7 +372,7 @@ export default {
                 alert("请填写完整相关信息！");
                 return;
             }
-            if(!(/^1[3-9][0-9]\d{4,8}$/.test(vm.submitAddress.tel))) {
+            if(!(/^[1]([3-9])[0-9]{9}$/.test(vm.submitAddress.tel))) {
                 alert("请填写正确的手机号！");
                 return;
             }
@@ -378,7 +393,7 @@ export default {
                     addr.amapDetailAddr=vm.submitAddress.amapDetailAddr;
                     addr.amapId=vm.submitAddress.amapId;
                     addr.main=vm.isDefault;
-                    
+                $("#zzmb").show();    
             vm.receiveData.postData(vm,'/addAddress',addr,'n',function(){
                     if(vm.n.success) {
                         vm.addresses.push(vm.n.result);
@@ -386,8 +401,8 @@ export default {
                     }else {
                         alert(vm.n.message==null?"地址保存失败，请重试！":vm.n.message);
                     }
-                                   
-                                })  
+                     $("#zzmb").hide();               
+                 })  
         }
    },
 
@@ -395,6 +410,10 @@ export default {
 </script>
 
 <style  scoped>
+.zzmb {
+  z-index: 100000;position: fixed;top: 0;left: 0;
+  -moz-opacity: 0.65;opacity: 0.65;filter: alpha(opacity=65);
+  background: #000;width: 100%;height: 100%;display: none;}
 .addr {
     background-color: #fffff8;
     padding-bottom: 1px
@@ -601,19 +620,22 @@ btn[data-v-11058882] {
     height: 36px;
     width: 100%;
     outline: none;
-    border: 1px solid #d4cfc8;
-    border-radius: 4px;
+    border:none;
     vertical-align: middle;
     font-size: 15px;
 }
-
+.location-i {
+    padding-right: 30px;
+    border-radius: 4px;
+    border: 1px solid #d4cfc8;
+}
 .location-btn-cancel {
     position: absolute;
-    top: 5px;
-    right: 4px;
+    top: 6px;
+    right: 10px;
     display: inline-block;
     height: 36px;
-    width: 36px;
+    width: 30px;
     background: url(../assets/images/icon_cancel.png) no-repeat;
     background-size: 15px;
     background-position: center;

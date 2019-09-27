@@ -62,6 +62,22 @@
                 <span class="input-info lf30 fs16">我的维修单</span>
                 <span class="fr fs14 left_color">查看维修单&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </a>
+            <!-- 我是维修工目前不隐藏 v-show="user.repairOperator" -->
+            <router-link
+                :to="{path:'/operatorOrders'}"
+                class="input-wrap menu-person-link lite-divider"
+                v-show="user.repairOperator"
+            >
+                <span class="input-info lf30 fs16">我是维修工</span>
+                <span class="fr fs14 left_color">查看维修单&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </router-link>
+            <router-link to='notices'>
+                <div class="input-wrap menu-person-link lite-divider">
+                        <span class="input-info lf30 fs16">我的消息</span>
+                    <span class="fr fs14 left_color">查看消息&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    
+                </div>
+            </router-link>
             <router-link to='notices'>
                 <div class="input-wrap menu-person-link lite-divider">
                         <span class="input-info lf30 fs16">我的消息</span>
@@ -145,9 +161,9 @@ export default {
     },
     methods: {
         //模仿线上用户信息
-            // 105/747/384
+            // 105/747/384/79176
         initSession4Test(){
-            let url ='/initSession4Test/105';
+            let url ='/initSession4Test/747';
                 vm.receiveData.getData(vm,url,'Data',function(){
                     
             });

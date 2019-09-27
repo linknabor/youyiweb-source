@@ -17,6 +17,7 @@ font-size: 0.26rem;
 }
 
    body {
+    background-color: #fffff8;
     -webkit-tap-highlight-color: transparent;
   }
 

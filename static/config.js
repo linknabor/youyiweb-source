@@ -1,21 +1,21 @@
-var pay = /127|test/.test(location.origin)?'https://test.e-shequ.com/pay/':
-		  /uat/.test(location.origin)?'https://uat.e-shequ.com/weixin/':
-		  'https://www.e-shequ.com/pay/';
+var pay = /127|test/.test(location.origin)?'https://test.e-shequ.cn/pay/':
+		  /uat/.test(location.origin)?'https://uat.e-shequ.cn/pay/':
+		  'https://www.e-shequ.cn/pay/';
 
-var html= /127|test/.test(location.origin)?'https://test.e-shequ.com/youyi/weixin/':
-		  /uat/.test(location.origin)?'https://uat.e-shequ.com/youyi/weixin/':
-		  'https://www.e-shequ.com/youyi/weixin/';
+var html= /127|test/.test(location.origin)?'https://test.e-shequ.cn/youyi/weixin/':
+		  /uat/.test(location.origin)?'https://uat.e-shequ.cn/youyi/weixin/':
+		  'https://www.e-shequ.cn/youyi/weixin/';
 var yy = "yy";
 window.config = {
 		//请求头公共部分
-		baseUrl:/127|test/.test(location.origin)?'https://test.e-shequ.com/youyi/wechat/hexie/wechat/':
-  		/uat/.test(location.origin)?'https://uat.e-shequ.com/youyi/wechat/hexie/wechat/':
-  		'https://www.e-shequ.com/youyi/wechat/hexie/wechat/',
+		baseUrl:/127|test/.test(location.origin)?'https://test.e-shequ.cn/youyi/wechat/hexie/wechat/':
+  		/uat/.test(location.origin)?'https://uat.e-shequ.cn/youyi/wechat/hexie/wechat/':
+  		'https://www.e-shequ.cn/youyi/wechat/hexie/wechat/',
 
 		//首页请求
 		person_index:{			
 			url1: pay+yy+'orderpay.html',//商品订单 团购订单  服务订单
-			url2: html+'repair/index.html',//报修单			
+			url2: html+'repair/index.html',//报修单	
 			url3: html+'wuye/index.html?#/myHouse',//绑定房屋 我是业主
 		},
 		person_footer:{			
@@ -66,7 +66,7 @@ window.config = {
 			url1: html+'wuye/index.html'//意见发布成功后跳转地址
 		},
 		wuye_zhifu:{
-			url1:html+'wuye/index.html?#/paymentquery'
+			url1:html+'wuye/index.html?#/payEnquiry'
 		}
 		
 };
